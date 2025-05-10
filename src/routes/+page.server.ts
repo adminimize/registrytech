@@ -10,6 +10,8 @@ export const load = async () => {
   try {
     // Array to store all section records
     const sections: any[] = [];
+    // Array to store all inventory records
+    const inventory: any[] = [];
     
     // Fetch records from the Sections table using Promise
     await new Promise<void>((resolve, reject) => {
@@ -46,13 +48,45 @@ export const load = async () => {
     
     console.log(`Fetched ${sections.length} sections`);
     
+    // Fetch records from the Inventory table
+    await new Promise<void>((resolve, reject) => {
+      base('tblapjguthkAXVnyI')
+        .select({
+          view: 'All Items',
+          fields: ['fldCPXmtYCgZT7Kx7', 'fldh2lBxOiVfIP0Ap']
+        })
+        .eachPage(
+          (records, fetchNextPage) => {
+            records.forEach(record => {
+              inventory.push({
+                id: record.id,
+                name: record.get('fldCPXmtYCgZT7Kx7'),
+                photo: record.get('fldh2lBxOiVfIP0Ap'),
+                fields: record.fields
+              });
+            });
+            fetchNextPage();
+          },
+          (error) => {
+            if (error) {
+              console.error('Error in eachPage:', error);
+              reject(error);
+            } else {
+              resolve();
+            }
+          }
+        );
+    });
+    
     return {
-      sections
+      sections,
+      inventory
     };
   } catch (error) {
     console.error('Error fetching sections from Airtable:', error);
     return {
       sections: [],
+      inventory: [],
       error: 'Failed to fetch sections'
     };
   }
