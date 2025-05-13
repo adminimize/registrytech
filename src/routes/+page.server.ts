@@ -1,6 +1,7 @@
 import Airtable from 'airtable';
 import { env } from '$env/dynamic/private';
-import { fetchAirtableRecords, TECH_INVENTORY_FIELDS } from '$lib/airtable';
+import { fetchAirtableRecords } from '$lib/airtable';
+import { TECH_INVENTORY_FIELDS, PACKAGES_FIELDS } from '$lib/airtableDefs';
 
 // Configure Airtable with type assertion for environment variables
 const base = new Airtable({ 
@@ -13,6 +14,21 @@ export const load = async () => {
     const sections = await fetchAirtableRecords({
       table: 'Sections',
       view: 'Grid view',
+    });
+
+    // Fetch records from the Packages table
+    const packages = await fetchAirtableRecords({
+      table: 'tblLaKd4pfJFcviVp',
+      fields: [
+        PACKAGES_FIELDS.NAME,
+        PACKAGES_FIELDS.DAY_RATE,
+        PACKAGES_FIELDS.TWO_DAY_RATE,
+        PACKAGES_FIELDS.WEEKLY_RATE,
+        PACKAGES_FIELDS.DESCRIPTION,
+        PACKAGES_FIELDS.NOTES,
+        PACKAGES_FIELDS.CATEGORY,
+        PACKAGES_FIELDS.CONTENTS,
+      ],
     });
 
     // Fetch records from the Inventory table using field IDs from the map
@@ -43,6 +59,11 @@ export const load = async () => {
         TECH_INVENTORY_FIELDS.NUMBER_OF_ITEMS,
         TECH_INVENTORY_FIELDS.PACKAGES,
         TECH_INVENTORY_FIELDS.DESCRIPTION,
+        TECH_INVENTORY_FIELDS.PRICE,
+        TECH_INVENTORY_FIELDS.TWO_DAY_PRICE,
+        TECH_INVENTORY_FIELDS.WEEK_PRICE,
+        TECH_INVENTORY_FIELDS.FIELD_26,
+        TECH_INVENTORY_FIELDS.COMPUTED_QUANTITY,
       ],
     });
 
@@ -78,12 +99,14 @@ export const load = async () => {
 
     return {
       sections,
+      packages,
       inventory: visibleInventory
     };
   } catch (error) {
     console.error('Error fetching sections from Airtable:', error);
     return {
       sections: [],
+      packages: [],
       inventory: [],
       error: 'Failed to fetch sections'
     };

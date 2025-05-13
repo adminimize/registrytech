@@ -19,7 +19,7 @@
 
 <div class="min-h-screen bg-[#1B1919] text-[#F6F6F6] font-['Inter']">
 	<div class="max-w-[1000px] w-[90vw] mx-auto px-5 py-8">
-		<slot />
+		{@render children()}
 	</div>
 </div>
 
